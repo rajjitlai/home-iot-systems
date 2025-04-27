@@ -10,7 +10,7 @@ enum LineMode { DARK_ON_LIGHT,
 const LineMode mode = DARK_ON_LIGHT;
 
 // ======= SPEED & STATE =======
-const int baseSpeed = 70;  // [0..255]
+const int baseSpeed = 60;  // [0..255]
 int threshold = 600;       // overwritten by calibration
 unsigned long lastTime;
 
