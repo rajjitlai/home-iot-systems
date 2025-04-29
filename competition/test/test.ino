@@ -10,7 +10,7 @@ enum LineMode { DARK_ON_LIGHT,
 const LineMode mode = DARK_ON_LIGHT;
 
 // ======= SPEED & STATE =======
-const int baseSpeed = 60;  // [0..255]
+const int baseSpeed = 65; // [0..255]
 int threshold = 600;       // overwritten by calibration
 unsigned long lastTime;
 
@@ -47,7 +47,9 @@ void loop() {
 
   // 2) NO LINE → STOP
   if (sumActive == 0) {
-    stopAll();
+    driveMotor(AIN1, AIN2, baseSpeed / 2);
+    driveMotor(BIN1, BIN2, baseSpeed / 2);
+    delay(120);
     return;
   }
 

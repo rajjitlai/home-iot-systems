@@ -15,8 +15,8 @@ enum LineMode
 const LineMode mode = DARK_ON_LIGHT;
 
 // ===== PID & MOTORS =====
-const int BASE_SPEED = 60; // fixed cruising speed
-const int MAX_SPEED = 60;  // clamp outputs to ±60
+const int BASE_SPEED = 50; // fixed cruising speed
+const int MAX_SPEED = 50;  // clamp outputs to ±60
 
 // per-side motor scaling
 const float LEFT_MOTOR_FACT = 1.30;
