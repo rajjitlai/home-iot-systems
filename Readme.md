@@ -6,3 +6,7 @@
 4. Bluetooth Control Car - Not done
 5. Camera - Not done
 6. Automatic Car Object Avoidance - Not done
+
+## Extra
+
+1. competition and exhibitions
