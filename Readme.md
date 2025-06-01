@@ -4,7 +4,7 @@
 2. Temperature Display - Prototype Done
 3. Line Follower - Not done
 4. Bluetooth Control Car - Not done
-5. Camera - Not done
+5. Camera - Prototype done, but needed more modules
 6. Automatic Car Object Avoidance - Not done
 
 ## Extra
