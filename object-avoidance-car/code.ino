@@ -1,143 +1,129 @@
 #include <Servo.h>
 
-// ─── MOTOR DRIVER PINS (L298N) ─────────────────────
-const int IN1 = 2;      // Left motor direction
-const int IN2 = 3;
-const int ENA = 9;      // Left motor speed (PWM)
+// Pins
+const int trigPin = 9;
+const int echoPin = 8;
+const int servoPin = 3;
 
-const int IN3 = 4;      // Right motor direction
-const int IN4 = 5;
-const int ENB = 10;     // Right motor speed (PWM)
+const int IN1 = 7;
+const int IN2 = 6;
+const int IN3 = 5;
+const int IN4 = 4;
 
-// ─── ULTRASONIC SENSOR PINS ────────────────────────
-const int TRIG = 11;
-const int ECHO = 12;
+const int ENA = 10;
+const int ENB = 11;
 
-// ─── SERVO (SG90) ──────────────────────────────────
-const int SERVO_PIN = 6;
-Servo scanner;
+Servo myServo;
 
-// ─── PARAMETERS ────────────────────────────────────
-const int MOTOR_SPEED = 200;         // Speed 0–255
-const int OBSTACLE_DIST_CM = 20;     // Stop distance
-
-const int ANGLE_LEFT   = 30;
-const int ANGLE_RIGHT  = 150;
-const int ANGLE_CENTER = 90;
-
-void setup() {
-  Serial.begin(9600);
+void setup()
+{
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
 
   pinMode(IN1, OUTPUT);
   pinMode(IN2, OUTPUT);
-  pinMode(ENA, OUTPUT);
-
   pinMode(IN3, OUTPUT);
   pinMode(IN4, OUTPUT);
+
+  pinMode(ENA, OUTPUT);
   pinMode(ENB, OUTPUT);
 
-  pinMode(TRIG, OUTPUT);
-  pinMode(ECHO, INPUT);
+  myServo.attach(servoPin);
+  myServo.write(90); // center position
+  delay(1000);
 
-  scanner.attach(SERVO_PIN);
-  scanner.write(ANGLE_CENTER);
-
-  delay(500);
+  Serial.begin(9600);
 }
 
-void loop() {
-  int distFront = readDistance();
-  Serial.print("Front: "); Serial.print(distFront); Serial.print(" cm  ");
+void loop()
+{
+  int distance = getDistance(90); // center
+  Serial.print("Center: ");
+  Serial.println(distance);
 
-  if (distFront > OBSTACLE_DIST_CM) {
-    driveForward(MOTOR_SPEED);
-  } else {
-    stopCar();
+  if (distance > 20)
+  {
+    moveForward();
+  }
+  else
+  {
+    stopMotors();
     delay(200);
 
-    // Scan Left
-    scanner.write(ANGLE_LEFT);
+    int leftDist = getDistance(150);
     delay(300);
-    int distLeft = readDistance();
-
-    // Scan Right
-    scanner.write(ANGLE_RIGHT);
+    int rightDist = getDistance(30);
     delay(300);
-    int distRight = readDistance();
 
-    // Back to Center
-    scanner.write(ANGLE_CENTER);
-    Serial.print("Left: "); Serial.print(distLeft); Serial.print(" cm  ");
-    Serial.print("Right: "); Serial.print(distRight); Serial.println(" cm");
-
-    // Decision Logic
-    if (distLeft > distRight && distLeft > OBSTACLE_DIST_CM) {
+    if (leftDist > rightDist)
+    {
       turnLeft();
-    } else if (distRight > distLeft && distRight > OBSTACLE_DIST_CM) {
-      turnRight();
-    } else {
-      // Both sides blocked
-      driveBackward(MOTOR_SPEED);
-      delay(500);
-      stopCar();
-      delay(200);
+      delay(400);
     }
-
-    driveForward(MOTOR_SPEED);
+    else
+    {
+      turnRight();
+      delay(400);
+    }
   }
-
-  delay(50);
 }
 
-// ─── FUNCTIONS ──────────────────────────────────────
+// Functions
 
-void driveForward(int speed) {
-  digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);
-  digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW);
-  analogWrite(ENA, speed);
-  analogWrite(ENB, speed);
-}
-
-void driveBackward(int speed) {
-  digitalWrite(IN1, LOW); digitalWrite(IN2, HIGH);
-  digitalWrite(IN3, LOW); digitalWrite(IN4, HIGH);
-  analogWrite(ENA, speed);
-  analogWrite(ENB, speed);
-}
-
-void stopCar() {
-  analogWrite(ENA, 0);
-  analogWrite(ENB, 0);
-}
-
-void turnLeft() {
-  digitalWrite(IN1, LOW); digitalWrite(IN2, HIGH);
-  digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW);
-  analogWrite(ENA, MOTOR_SPEED / 2);
-  analogWrite(ENB, MOTOR_SPEED);
+long getDistance(int angle)
+{
+  myServo.write(angle);
   delay(400);
-  stopCar();
-}
 
-void turnRight() {
-  digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);
-  digitalWrite(IN3, LOW); digitalWrite(IN4, HIGH);
-  analogWrite(ENA, MOTOR_SPEED);
-  analogWrite(ENB, MOTOR_SPEED / 2);
-  delay(400);
-  stopCar();
-}
-
-int readDistance() {
-  digitalWrite(TRIG, LOW);
+  digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
-  digitalWrite(TRIG, HIGH);
+  digitalWrite(trigPin, HIGH);
   delayMicroseconds(10);
-  digitalWrite(TRIG, LOW);
+  digitalWrite(trigPin, LOW);
 
-  long duration = pulseIn(ECHO, HIGH, 30000);
-  if (duration == 0) return 999;
+  long duration = pulseIn(echoPin, HIGH);
+  long distance = duration * 0.034 / 2;
 
-  int distance = duration * 0.034 / 2;
   return distance;
+}
+
+void moveForward()
+{
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+
+  analogWrite(ENA, 200);
+  analogWrite(ENB, 200);
+}
+
+void turnLeft()
+{
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+
+  analogWrite(ENA, 200);
+  analogWrite(ENB, 200);
+}
+
+void turnRight()
+{
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+
+  analogWrite(ENA, 200);
+  analogWrite(ENB, 200);
+}
+
+void stopMotors()
+{
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
 }
