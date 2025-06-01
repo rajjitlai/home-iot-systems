@@ -73,3 +73,9 @@ A compact, low-power wearable camera that captures a photo every 10 minutes and 
 - [ ] Cardboard body prototype
 - [ ] 3D printed case
 - [ ] Final wearable assembly
+
+## Extra components needed to bought (Rs. 600)
+
+- MT3608 2A Max DC-DC Step Up Power Module Booster Power Module
+- Duracell CR2032 3V Lithium Coin Battery
+- DFRobot USB Charger for 7.4V LiPo Battery
