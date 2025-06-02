@@ -1,3 +1,8 @@
+#include <SoftwareSerial.h>
+
+// Bluetooth module connected to D2 (RX), D3 (TX)
+SoftwareSerial BT(2, 3); // RX, TX
+
 char command;
 
 const int IN1 = 8;
@@ -11,37 +16,53 @@ void setup()
     pinMode(IN2, OUTPUT);
     pinMode(IN3, OUTPUT);
     pinMode(IN4, OUTPUT);
-    Serial.begin(9600);
+
+    Serial.begin(9600); // USB Serial Monitor
+    BT.begin(9600);     // Bluetooth module baud rate
+
+    Serial.println("Bluetooth Car Ready. Waiting for commands...");
 }
 
 void loop()
 {
-    if (Serial.available() > 0)
+    if (BT.available())
     {
-        command = Serial.read();
+        command = BT.read();
         command = toupper(command);
+
+        Serial.print("Received command: ");
+        Serial.println(command);
 
         switch (command)
         {
         case 'F':
             forward();
+            Serial.println("Moving Forward");
             break;
         case 'B':
             backward();
+            Serial.println("Moving Backward");
             break;
         case 'L':
             left();
+            Serial.println("Turning Left");
             break;
         case 'R':
             right();
+            Serial.println("Turning Right");
             break;
         case 'S':
-            stop();
+            stopMotors();
+            Serial.println("Stopped");
+            break;
+        default:
+            Serial.println("Unknown command");
             break;
         }
     }
 }
 
+// Motor Control Functions
 void forward()
 {
     digitalWrite(IN1, HIGH);
@@ -74,7 +95,7 @@ void right()
     digitalWrite(IN4, HIGH);
 }
 
-void stop()
+void stopMotors()
 {
     digitalWrite(IN1, LOW);
     digitalWrite(IN2, LOW);
