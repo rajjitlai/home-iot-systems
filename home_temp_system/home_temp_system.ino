@@ -11,6 +11,8 @@
 DHT dht(DHTPIN, DHTTYPE);
 LiquidCrystal_I2C lcd(0x27, 16, 2); // I2C address 0x27, 16 cols, 2 rows
 
+int errorCount = 0;
+
 void setup()
 {
     lcd.init();      // Initialize LCD
@@ -25,32 +27,37 @@ void setup()
 
 void loop()
 {
-    // Read humidity and temperature
     float h = dht.readHumidity();
-    float t = dht.readTemperature(); // Celsius
+    float t = dht.readTemperature();
 
-    // Check if reads failed
     if (isnan(h) || isnan(t))
     {
+        errorCount++;
         lcd.setCursor(0, 0);
         lcd.print("Sensor error");
         delay(2000);
+
+        // Reset system if error persists
+        if (errorCount >= 5)
+        {
+            // Force a software reset
+            asm volatile("  jmp 0"); // AVR reset
+        }
         return;
     }
 
-    // Display temperature
+    errorCount = 0; // Reset on success
+
     lcd.setCursor(0, 0);
     lcd.print("Temp: ");
     lcd.print(t, 1);
-    lcd.print((char)223); // Degree symbol
+    lcd.print((char)223);
     lcd.print("C");
 
-    // Display humidity
     lcd.setCursor(0, 1);
     lcd.print("Humidity: ");
     lcd.print(h, 1);
     lcd.print("%");
 
-    // Wait before next update
     delay(2000);
 }
