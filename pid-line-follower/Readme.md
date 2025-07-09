@@ -107,3 +107,13 @@ float Kd = 15;
 You can temporarily use 4x 1.2V AA NiMH rechargeable batteries (4.8V total) for slow-speed testing. Connect this directly to the Arduino Nano's 5V pin and to TB6612 VCC. Do not use the VIN pin in this case. The motors may run slower, but it's safe for sensor and logic testing.
 
 ---
+
+## 📜 License
+
+This project is licensed under the **MIT License**.  
+You are free to use, modify, and distribute this project with proper attribution.
+
+## 🙌 Credits
+
+Created and developed by [Rajjit Laishram](https://rajjitlaishram.netlify.app/).  
+Special thanks to the Arduino and open-source robotics communities.
