@@ -14,12 +14,17 @@ const int buttonPin = 13;
 bool lastButtonState = HIGH;
 bool captureRequested = false;
 
+// RTC Pins
+#define SDA_PIN 14
+#define SCL_PIN 15
+
 // Camera pin configuration (AI Thinker ESP32-CAM)
 #define PWDN_GPIO_NUM -1
 #define RESET_GPIO_NUM -1
 #define XCLK_GPIO_NUM 0
 #define SIOD_GPIO_NUM 26
 #define SIOC_GPIO_NUM 27
+
 #define Y9_GPIO_NUM 35
 #define Y8_GPIO_NUM 34
 #define Y7_GPIO_NUM 39
@@ -28,6 +33,7 @@ bool captureRequested = false;
 #define Y4_GPIO_NUM 19
 #define Y3_GPIO_NUM 18
 #define Y2_GPIO_NUM 5
+
 #define VSYNC_GPIO_NUM 25
 #define HREF_GPIO_NUM 23
 #define PCLK_GPIO_NUM 22
@@ -60,10 +66,11 @@ void setupCamera()
     config.jpeg_quality = 12;
     config.fb_count = 1;
 
+    // Initialize camera
     esp_err_t err = esp_camera_init(&config);
     if (err != ESP_OK)
     {
-        Serial.printf("Camera init failed: 0x%x", err);
+        Serial.printf("Camera init failed: 0x%x\n", err);
         while (true)
             ;
     }
@@ -76,27 +83,26 @@ void setup()
 
     pinMode(buttonPin, INPUT_PULLUP);
 
-    // Init RTC
-    Wire.begin();
+    // Init I2C for RTC
+    Wire.begin(SDA_PIN, SCL_PIN);
     if (!rtc.begin())
     {
         Serial.println("RTC not found!");
-        while (1)
+        while (true)
             ;
     }
 
-    // Uncomment to set time once
+    // Uncomment to set RTC once
     // rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
 
-    // Init SD card
+    // Initialize SD Card
     if (!SD_MMC.begin())
     {
         Serial.println("Card Mount Failed");
         return;
     }
 
-    uint8_t cardType = SD_MMC.cardType();
-    if (cardType == CARD_NONE)
+    if (SD_MMC.cardType() == CARD_NONE)
     {
         Serial.println("No SD card attached");
         return;
@@ -112,7 +118,6 @@ void loop()
 {
     bool currentState = digitalRead(buttonPin);
 
-    // Detect falling edge
     if (lastButtonState == HIGH && currentState == LOW)
     {
         Serial.println("Button Pressed!");
@@ -151,6 +156,7 @@ void loop()
             Serial.print("Saved: ");
             Serial.println(filename);
         }
+
         file.close();
         esp_camera_fb_return(fb);
     }
